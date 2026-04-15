@@ -749,13 +749,17 @@ body {
     font-size: 0.8rem;
 }
 
-.footer-links span {
-    cursor: pointer;
+.footer-links a {
+    color: var(--text-dim);
+    font-size: 1.4rem;
     transition: var(--transition-smooth);
+    text-decoration: none;
 }
 
-.footer-links span:hover {
+.footer-links a:hover {
     color: var(--primary-light);
+    transform: translateY(-3px);
+    display: inline-block;
 }
 
 /* Mobile Navbar Styles */
