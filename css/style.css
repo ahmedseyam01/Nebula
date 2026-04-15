@@ -95,8 +95,9 @@ body {
 }
 
 .nav-item:hover, .nav-item.active {
-    background: var(--glass-bg);
+    background: linear-gradient(90deg, rgba(124, 77, 255, 0.15), transparent);
     color: var(--text-main);
+    box-shadow: inset 0 0 20px rgba(124, 77, 255, 0.05);
 }
 
 .nav-item.active i {
@@ -135,9 +136,11 @@ body {
     align-items: center;
     z-index: 50;
     background: rgba(15, 12, 41, 0.4);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
     margin: 0 -40px;
     padding: 0 40px;
+    border-bottom: 1px solid var(--glass-border);
 }
 
 .search-bar {
@@ -270,8 +273,8 @@ body {
 
 .track-card:hover {
     background: rgba(255, 255, 255, 0.08);
-    transform: translateY(-6px);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(124, 77, 255, 0.2);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(124, 77, 255, 0.3);
 }
 
 .track-list .track-card {
@@ -728,25 +731,45 @@ body {
     }
 }
 
-/* App Footer */
+/* App Footer Premium Redesign */
 .app-footer {
-    margin-top: 60px;
-    padding: 40px 0;
-    border-top: 1px solid var(--glass-border);
+    margin: 80px 0 40px;
+    padding: 60px 40px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+    border-radius: 24px;
+    border: 1px solid var(--glass-border);
     text-align: center;
     color: var(--text-dim);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.app-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
 }
 
 .app-footer p {
-    font-size: 0.9rem;
-    margin-bottom: 15px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 20px;
+    letter-spacing: 0.5px;
 }
 
 .footer-links {
     display: flex;
     justify-content: center;
-    gap: 30px;
-    font-size: 0.8rem;
+    gap: 40px;
+    font-size: 0.85rem;
+    margin-top: 25px;
+    color: var(--text-dim);
 }
 
 .footer-links span {
@@ -792,10 +815,31 @@ body {
     background: var(--glass-bg);
 }
 
+/* Sidebar Overlay (Mobile) */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 1500;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease;
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
 /* Sidebar Drawer State (Mobile) */
 .sidebar.mobile-open {
     transform: translateX(0);
-    box-shadow: 20px 0 50px rgba(0,0,0,0.8);
+    box-shadow: 25px 0 60px rgba(0,0,0,0.8);
 }
 
 /* Toast Notifications */

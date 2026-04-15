@@ -43,6 +43,7 @@ const playlistList = document.getElementById('playlist-list');
 const showAllBtn = document.getElementById('show-all-btn');
 const menuToggle = document.getElementById('menu-toggle');
 const sidebar = document.querySelector('.sidebar');
+const sidebarOverlay = document.getElementById('sidebar-overlay');
 
 // Local File Elements
 const dropZone = document.getElementById('drop-zone');
@@ -421,6 +422,7 @@ document.addEventListener('click', (e) => {
         // Close mobile sidebar if open
         if (sidebar.classList.contains('mobile-open')) {
             sidebar.classList.remove('mobile-open');
+            if (sidebarOverlay) sidebarOverlay.classList.remove('active');
             const menuToggleIcon = menuToggle.querySelector('i');
             if (menuToggleIcon) menuToggleIcon.classList.replace('fa-times', 'fa-bars');
         }
@@ -431,12 +433,22 @@ document.addEventListener('click', (e) => {
 if (menuToggle) {
     menuToggle.onclick = () => {
         sidebar.classList.toggle('mobile-open');
+        if (sidebarOverlay) sidebarOverlay.classList.toggle('active');
         const icon = menuToggle.querySelector('i');
         if (sidebar.classList.contains('mobile-open')) {
             icon.classList.replace('fa-bars', 'fa-times');
         } else {
             icon.classList.replace('fa-times', 'fa-bars');
         }
+    };
+}
+
+if (sidebarOverlay) {
+    sidebarOverlay.onclick = () => {
+        sidebar.classList.remove('mobile-open');
+        sidebarOverlay.classList.remove('active');
+        const icon = menuToggle.querySelector('i');
+        if (icon) icon.classList.replace('fa-times', 'fa-bars');
     };
 }
 
