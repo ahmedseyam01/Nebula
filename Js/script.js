@@ -41,6 +41,8 @@ const onlineResults = document.getElementById('online-results');
 const toastContainer = document.getElementById('toast-container');
 const playlistList = document.getElementById('playlist-list');
 const showAllBtn = document.getElementById('show-all-btn');
+const menuToggle = document.getElementById('menu-toggle');
+const sidebar = document.querySelector('.sidebar');
 
 // Local File Elements
 const dropZone = document.getElementById('drop-zone');
@@ -415,8 +417,28 @@ document.addEventListener('click', (e) => {
         if (nav.id !== 'nav-profile') {
             renderTrackGrid(currentPlaylist);
         }
+
+        // Close mobile sidebar if open
+        if (sidebar.classList.contains('mobile-open')) {
+            sidebar.classList.remove('mobile-open');
+            const menuToggleIcon = menuToggle.querySelector('i');
+            if (menuToggleIcon) menuToggleIcon.classList.replace('fa-times', 'fa-bars');
+        }
     }
 });
+
+// Mobile Menu Toggle Logic
+if (menuToggle) {
+    menuToggle.onclick = () => {
+        sidebar.classList.toggle('mobile-open');
+        const icon = menuToggle.querySelector('i');
+        if (sidebar.classList.contains('mobile-open')) {
+            icon.classList.replace('fa-bars', 'fa-times');
+        } else {
+            icon.classList.replace('fa-times', 'fa-bars');
+        }
+    };
+}
 
 function openProfilePage() {
     const profileHeader = document.getElementById('profile-header');
