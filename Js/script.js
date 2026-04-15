@@ -592,6 +592,54 @@ if (showAllBtn) {
     };
 }
 
+// --- VOLUME CONTROL ---
+let lastVolume = 0.7;
+
+function updateVolumeIcon(vol) {
+    volumeIcon.classList.remove('fa-volume-high', 'fa-volume-low', 'fa-volume-off', 'fa-volume-xmark');
+    if (vol === 0 || audio.muted) {
+        volumeIcon.classList.add('fa-volume-xmark');
+        volumeIcon.style.color = 'var(--accent-color)';
+    } else if (vol > 0.6) {
+        volumeIcon.classList.add('fa-volume-high');
+        volumeIcon.style.color = 'var(--text-main)';
+    } else {
+        volumeIcon.classList.add('fa-volume-low');
+        volumeIcon.style.color = 'var(--text-dim)';
+    }
+}
+
+if (volumeSlider) {
+    volumeSlider.oninput = (e) => {
+        const vol = parseFloat(e.target.value);
+        audio.volume = vol;
+        audio.muted = false;
+        updateVolumeIcon(vol);
+        if (vol > 0) lastVolume = vol;
+    };
+}
+
+if (volumeIcon) {
+    volumeIcon.onclick = () => {
+        if (audio.volume > 0 && !audio.muted) {
+            lastVolume = audio.volume;
+            audio.volume = 0;
+            audio.muted = true;
+            volumeSlider.value = 0;
+        } else {
+            audio.volume = lastVolume;
+            audio.muted = false;
+            volumeSlider.value = lastVolume;
+        }
+        updateVolumeIcon(audio.volume);
+    };
+}
+
+// Initialize volume
+audio.volume = 0.7;
+if (volumeSlider) volumeSlider.value = 0.7;
+updateVolumeIcon(0.7);
+
 const createPlBtn = document.getElementById('create-playlist-btn');
 if (createPlBtn) {
     createPlBtn.onclick = () => {
