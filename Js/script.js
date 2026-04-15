@@ -593,13 +593,13 @@ if (showAllBtn) {
 }
 
 // --- VOLUME CONTROL ---
-let lastVolume = 0.7;
+let lastVolume = localStorage.getItem('nebula_volume') ? parseFloat(localStorage.getItem('nebula_volume')) : 0.7;
 
-function updateVolumeIcon(vol) {
-    // Start fresh — remove any existing volume icon class
+function updateVolumeIcon(vol, muted) {
     volumeIcon.className = 'fas control-icon';
     volumeIcon.style.cursor = 'pointer';
-    if (vol === 0 || audio.muted) {
+    
+    if (vol === 0 || muted) {
         volumeIcon.classList.add('fa-volume-xmark');
         volumeIcon.style.color = 'var(--accent-color)';
     } else if (vol > 0.6) {
@@ -612,35 +612,37 @@ function updateVolumeIcon(vol) {
 }
 
 function setVolume(vol) {
-    vol = Math.max(0, Math.min(1, vol));
-    audio.volume = vol;
-    audio.muted = (vol === 0);
-    if (vol > 0) lastVolume = vol;
-    if (volumeSlider) volumeSlider.value = vol;
-    updateVolumeIcon(vol);
+    const v = Math.max(0, Math.min(1, parseFloat(vol)));
+    audio.volume = v;
+    audio.muted = (v === 0);
+    if (v > 0) {
+        lastVolume = v;
+        localStorage.setItem('nebula_volume', v);
+    }
 }
 
 if (volumeSlider) {
-    volumeSlider.value = lastVolume;
-    volumeSlider.oninput = (e) => setVolume(parseFloat(e.target.value));
+    volumeSlider.oninput = (e) => setVolume(e.target.value);
 }
 
 if (volumeIcon) {
     volumeIcon.onclick = () => {
-        if (!audio.muted && audio.volume > 0) {
+        if (audio.muted || audio.volume === 0) {
+            setVolume(lastVolume || 0.7);
+        } else {
             lastVolume = audio.volume;
             setVolume(0);
-        } else {
-            setVolume(lastVolume || 0.7);
         }
     };
 }
 
-// Set initial volume once DOM is ready
-window.addEventListener('DOMContentLoaded', () => {
-    setVolume(lastVolume);
-}, { once: true });
-// Also set immediately in case DOM is already loaded
+// Ensure the UI stays in sync with the actual audio element state
+audio.onvolumechange = () => {
+    if (volumeSlider) volumeSlider.value = audio.volume;
+    updateVolumeIcon(audio.volume, audio.muted);
+};
+
+// Initial volume sync
 setVolume(lastVolume);
 
 
