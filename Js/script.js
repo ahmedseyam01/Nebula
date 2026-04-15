@@ -596,7 +596,9 @@ if (showAllBtn) {
 let lastVolume = 0.7;
 
 function updateVolumeIcon(vol) {
-    volumeIcon.classList.remove('fa-volume-high', 'fa-volume-low', 'fa-volume-off', 'fa-volume-xmark');
+    // Start fresh — remove any existing volume icon class
+    volumeIcon.className = 'fas control-icon';
+    volumeIcon.style.cursor = 'pointer';
     if (vol === 0 || audio.muted) {
         volumeIcon.classList.add('fa-volume-xmark');
         volumeIcon.style.color = 'var(--accent-color)';
@@ -609,36 +611,38 @@ function updateVolumeIcon(vol) {
     }
 }
 
+function setVolume(vol) {
+    vol = Math.max(0, Math.min(1, vol));
+    audio.volume = vol;
+    audio.muted = (vol === 0);
+    if (vol > 0) lastVolume = vol;
+    if (volumeSlider) volumeSlider.value = vol;
+    updateVolumeIcon(vol);
+}
+
 if (volumeSlider) {
-    volumeSlider.oninput = (e) => {
-        const vol = parseFloat(e.target.value);
-        audio.volume = vol;
-        audio.muted = false;
-        updateVolumeIcon(vol);
-        if (vol > 0) lastVolume = vol;
-    };
+    volumeSlider.value = lastVolume;
+    volumeSlider.oninput = (e) => setVolume(parseFloat(e.target.value));
 }
 
 if (volumeIcon) {
     volumeIcon.onclick = () => {
-        if (audio.volume > 0 && !audio.muted) {
+        if (!audio.muted && audio.volume > 0) {
             lastVolume = audio.volume;
-            audio.volume = 0;
-            audio.muted = true;
-            volumeSlider.value = 0;
+            setVolume(0);
         } else {
-            audio.volume = lastVolume;
-            audio.muted = false;
-            volumeSlider.value = lastVolume;
+            setVolume(lastVolume || 0.7);
         }
-        updateVolumeIcon(audio.volume);
     };
 }
 
-// Initialize volume
-audio.volume = 0.7;
-if (volumeSlider) volumeSlider.value = 0.7;
-updateVolumeIcon(0.7);
+// Set initial volume once DOM is ready
+window.addEventListener('DOMContentLoaded', () => {
+    setVolume(lastVolume);
+}, { once: true });
+// Also set immediately in case DOM is already loaded
+setVolume(lastVolume);
+
 
 const createPlBtn = document.getElementById('create-playlist-btn');
 if (createPlBtn) {

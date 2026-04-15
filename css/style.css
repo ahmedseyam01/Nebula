@@ -184,14 +184,38 @@ body {
 .hero {
     margin-top: 30px;
     height: 300px;
-    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    background: linear-gradient(135deg, #3a0ca3 0%, #7209b7 40%, #4361ee 100%);
     border-radius: 24px;
     display: flex;
     align-items: flex-end;
     padding: 40px;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 60px rgba(114, 9, 183, 0.4), 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 65%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.hero::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(67, 97, 238, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
 }
 
 .hero-content {
@@ -243,7 +267,8 @@ body {
 
 .track-card:hover {
     background: rgba(255, 255, 255, 0.08);
-    transform: translateY(-5px);
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(124, 77, 255, 0.2);
 }
 
 .track-list .track-card {
@@ -282,11 +307,11 @@ body {
 
 .card-play-btn {
     position: absolute;
-    bottom: 10px;
-    right: 10px;
-    width: 45px;
-    height: 45px;
-    background: var(--primary-color);
+    bottom: 12px;
+    right: 12px;
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(135deg, #9c6fff, var(--primary-color));
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -294,7 +319,7 @@ body {
     opacity: 0;
     transform: translateY(10px);
     transition: var(--transition-smooth);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 8px 24px rgba(124, 77, 255, 0.5);
 }
 
 .track-card:hover .card-play-btn {
@@ -318,14 +343,15 @@ body {
 /* Bottom Player Bar */
 .player-bar {
     grid-area: player;
-    background: rgba(10, 10, 25, 0.98);
-    backdrop-filter: blur(20px);
-    border-top: 1px solid var(--glass-border);
-    padding: 0 20px;
+    background: linear-gradient(to top, rgba(5, 5, 18, 0.98) 0%, rgba(15, 10, 40, 0.98) 100%);
+    backdrop-filter: blur(30px);
+    border-top: 1px solid rgba(124, 77, 255, 0.2);
+    padding: 0 28px;
     display: grid;
     grid-template-columns: 300px 1fr 300px;
     align-items: center;
     z-index: 200;
+    box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.5);
 }
 
 .current-track {
@@ -335,10 +361,17 @@ body {
 }
 
 .mini-cover {
-    width: 56px;
-    height: 56px;
-    border-radius: 8px;
+    width: 58px;
+    height: 58px;
+    border-radius: 10px;
     object-fit: cover;
+    box-shadow: 0 4px 16px rgba(124, 77, 255, 0.4);
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: transform 0.3s ease;
+}
+
+.mini-cover:hover {
+    transform: scale(1.05);
 }
 
 .mini-info h4 {
@@ -387,15 +420,27 @@ body {
 }
 
 .btn-play-pause {
-    width: 35px;
-    height: 35px;
-    background: white;
-    color: black;
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #9c6fff, #7c4dff);
+    color: white;
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 1rem;
+    box-shadow: 0 0 20px rgba(124, 77, 255, 0.6), 0 4px 12px rgba(0,0,0,0.4);
+    transition: var(--transition-smooth);
+    cursor: pointer;
+}
+
+.btn-play-pause:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 28px rgba(124, 77, 255, 0.8), 0 6px 16px rgba(0,0,0,0.4);
+}
+
+.btn-play-pause:active {
+    transform: scale(0.96);
 }
 
 .progress-wrapper {
@@ -424,23 +469,39 @@ body {
 .progress-current {
     height: 100%;
     width: 0%;
-    background: var(--primary-color);
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
     border-radius: 2px;
     position: relative;
     pointer-events: none;
+    transition: width 0.1s linear;
+}
+
+.full-progress-bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+    transition: height 0.2s ease;
+}
+
+.full-progress-bar:hover {
+    height: 6px;
 }
 
 .progress-current::after {
     content: '';
     position: absolute;
-    right: -6px;
-    top: -4px;
-    width: 12px;
-    height: 12px;
+    right: -7px;
+    top: -5px;
+    width: 14px;
+    height: 14px;
     background: white;
     border-radius: 50%;
     opacity: 0;
     transition: opacity 0.2s;
+    box-shadow: 0 0 8px rgba(124, 77, 255, 0.8);
 }
 
 .full-progress-bar:hover .progress-current::after {
@@ -456,21 +517,34 @@ body {
 }
 
 .volume-bar-mini {
-    width: 100px;
+    width: 90px;
     height: 4px;
     -webkit-appearance: none;
-    background: rgba(255, 255, 255, 0.1);
+    appearance: none;
+    background: rgba(255, 255, 255, 0.08);
     border-radius: 2px;
     outline: none;
+    cursor: pointer;
+    transition: height 0.2s ease;
+}
+
+.volume-bar-mini:hover {
+    height: 6px;
 }
 
 .volume-bar-mini::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 12px;
-    height: 12px;
-    background: white;
+    width: 14px;
+    height: 14px;
+    background: linear-gradient(135deg, #9c6fff, white);
     border-radius: 50%;
     cursor: pointer;
+    box-shadow: 0 0 8px rgba(124, 77, 255, 0.6);
+    transition: transform 0.15s ease;
+}
+
+.volume-bar-mini::-webkit-slider-thumb:hover {
+    transform: scale(1.3);
 }
 
 /* Modal Styling Re-adapted */
