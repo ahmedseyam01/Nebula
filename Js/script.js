@@ -322,22 +322,27 @@ function updateBackgroundEffects() {
 }
 
 // --- SEARCH ENGINE (ITUNES) ---
-async function searchOnlineTracks(query) {
+// --- SEARCH ENGINE (ITUNES JSONP) ---
+function searchOnlineTracks(query) {
     if (!query) return;
     const skeleton = document.getElementById('skeleton-template');
     if (onlineResults && skeleton) {
         onlineResults.innerHTML = skeleton.innerHTML.repeat(3);
     }
+
+    // Remove any existing callback scripts to clean up
+    const oldScript = document.getElementById('itunes-jsonp');
+    if (oldScript) oldScript.remove();
+
+    // Create a unique callback name
+    const callbackName = 'itunesCallback_' + Date.now();
     
-    try {
-        const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&limit=10`);
-        if (!res.ok) throw new Error(`Network response was not ok (${res.status})`);
-        
-        const data = await res.json();
+    // Define the global callback function
+    window[callbackName] = function(data) {
         if (!onlineResults) return;
-        
         onlineResults.innerHTML = '';
-        if (data.results.length === 0) {
+        
+        if (!data.results || data.results.length === 0) {
             onlineResults.innerHTML = '<div class="empty-results-msg">No results found for "' + query + '"</div>';
             return;
         }
@@ -351,7 +356,15 @@ async function searchOnlineTracks(query) {
                 <button class="add-result-btn"><i class="fas fa-plus"></i></button>
             `;
             item.querySelector('button').onclick = () => {
-                const newSong = { id: Date.now(), displayName: track.trackName, artist: track.artistName, src: track.previewUrl, cover: track.artworkUrl100.replace('100x100', '600x600'), liked: false, bookmarked: false };
+                const newSong = { 
+                    id: Date.now(), 
+                    displayName: track.trackName, 
+                    artist: track.artistName, 
+                    src: track.previewUrl, 
+                    cover: track.artworkUrl100.replace('100x100', '600x600'), 
+                    liked: false, 
+                    bookmarked: false 
+                };
                 songs.push(newSong);
                 saveAllData();
                 initLibrary();
@@ -360,16 +373,29 @@ async function searchOnlineTracks(query) {
             };
             onlineResults.appendChild(item);
         });
-    } catch (e) { 
-        console.error("Search Error:", e);
+
+        // Cleanup
+        delete window[callbackName];
+        const script = document.getElementById('itunes-jsonp');
+        if (script) script.remove();
+    };
+
+    // Create and inject the script tag
+    const script = document.createElement('script');
+    script.id = 'itunes-jsonp';
+    script.src = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&limit=10&callback=${callbackName}`;
+    
+    script.onerror = () => {
         if (onlineResults) {
             onlineResults.innerHTML = `<div class="error-msg" style="color: #ff4d4d; padding: 20px; text-align: center;">
                 <i class="fas fa-exclamation-circle" style="display: block; font-size: 1.5rem; margin-bottom: 8px;"></i>
-                Search failed: ${e.message}<br>
-                <span style="font-size: 0.8rem; color: var(--text-dim);">Check your internet connection or ad-blocker.</span>
+                Search failed to load.<br>
+                <span style="font-size: 0.8rem; color: var(--text-dim);">This might be a network issue.</span>
             </div>`;
         }
-    }
+    };
+
+    document.body.appendChild(script);
 }
 
 // --- EVENT LISTENERS ---
