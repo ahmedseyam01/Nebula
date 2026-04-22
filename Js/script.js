@@ -352,7 +352,15 @@ async function searchOnlineTracks(query) {
 
 // --- EVENT LISTENERS ---
 document.addEventListener('click', (e) => {
-    if (e.target.closest('#open-modal')) modalOverlay.classList.add('active');
+    if (e.target.closest('#open-modal')) {
+        modalOverlay.classList.add('active');
+        // Close mobile sidebar when opening modal
+        if (sidebar.classList.contains('mobile-open')) {
+            sidebar.classList.remove('mobile-open');
+            const menuToggleIcon = menuToggle.querySelector('i');
+            if (menuToggleIcon) menuToggleIcon.classList.replace('fa-times', 'fa-bars');
+        }
+    }
     if (e.target.closest('#close-modal')) modalOverlay.classList.remove('active');
     
     if (e.target.closest('#logged-in-view')) {
