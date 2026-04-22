@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nebula Music Player | Professional Audio Experience</title>
     <meta name="description" content="A premium music player with modern glassmorphism design and smooth JavaScript controls.">
-    <link rel="stylesheet" href="css/style.css?v=1.2">
+    <link rel="stylesheet" href="css/style.css">
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -217,11 +217,10 @@
             <div id="search-form" style="display: none;">
                 <div class="form-group">
                     <label>Search by Song Name or Artist</label>
-                    <div class="search-bar" style="width: 100%; border: 1px solid var(--glass-border); position: relative; display: flex;">
+                    <div class="search-bar" style="width: 100%; border: 1px solid var(--glass-border); position: relative;">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="online-search-input" placeholder="e.g. Blinding Lights..." style="flex: 1;">
-                        <i class="fas fa-times-circle clear-search-btn" id="clear-online-search" title="Clear Search" style="right: 50px;"></i>
-                        <button id="execute-online-search" style="background: var(--primary-color); border: none; color: white; padding: 0 15px; border-radius: 0 50px 50px 0; cursor: pointer; margin-right: -20px; transition: 0.3s;"><i class="fas fa-arrow-right"></i></button>
+                        <input type="text" id="online-search-input" placeholder="e.g. Blinding Lights...">
+                        <i class="fas fa-times-circle clear-search-btn" id="clear-online-search" title="Clear Search"></i>
                     </div>
                 </div>
                 <div id="online-results" class="search-results-container">
@@ -297,9 +296,9 @@
     <!-- Hidden Spotify Embed Container -->
     <div id="spotify-embed-container" style="position: absolute; bottom: -1000px; left: -1000px; width: 0; height: 0; opacity: 0; pointer-events: none;"></div>
 
-    <script src="Js/db.js?v=1.2"></script>
-    <script src="Js/auth.js?v=1.2"></script>
-    <script src="Js/script.js?v=1.2"></script>
+    <script src="Js/db.js"></script>
+    <script src="Js/auth.js"></script>
+    <script src="Js/script.js"></script>
 
 </body>
 </html>
