@@ -324,11 +324,24 @@ function updateBackgroundEffects() {
 // --- SEARCH ENGINE (ITUNES) ---
 async function searchOnlineTracks(query) {
     if (!query) return;
-    onlineResults.innerHTML = document.getElementById('skeleton-template').innerHTML.repeat(3);
+    const skeleton = document.getElementById('skeleton-template');
+    if (onlineResults && skeleton) {
+        onlineResults.innerHTML = skeleton.innerHTML.repeat(3);
+    }
+    
     try {
         const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&limit=10`);
+        if (!res.ok) throw new Error(`Network response was not ok (${res.status})`);
+        
         const data = await res.json();
+        if (!onlineResults) return;
+        
         onlineResults.innerHTML = '';
+        if (data.results.length === 0) {
+            onlineResults.innerHTML = '<div class="empty-results-msg">No results found for "' + query + '"</div>';
+            return;
+        }
+
         data.results.forEach(track => {
             const item = document.createElement('div');
             item.className = 'result-item';
@@ -347,7 +360,16 @@ async function searchOnlineTracks(query) {
             };
             onlineResults.appendChild(item);
         });
-    } catch (e) { onlineResults.innerHTML = 'Search failed.'; }
+    } catch (e) { 
+        console.error("Search Error:", e);
+        if (onlineResults) {
+            onlineResults.innerHTML = `<div class="error-msg" style="color: #ff4d4d; padding: 20px; text-align: center;">
+                <i class="fas fa-exclamation-circle" style="display: block; font-size: 1.5rem; margin-bottom: 8px;"></i>
+                Search failed: ${e.message}<br>
+                <span style="font-size: 0.8rem; color: var(--text-dim);">Check your internet connection or ad-blocker.</span>
+            </div>`;
+        }
+    }
 }
 
 // --- EVENT LISTENERS ---
