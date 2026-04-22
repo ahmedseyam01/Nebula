@@ -322,32 +322,34 @@ function updateBackgroundEffects() {
 }
 
 // --- SEARCH ENGINE (ITUNES) ---
-// --- SEARCH ENGINE (ITUNES JSONP) ---
-function searchOnlineTracks(query) {
+// --- SEARCH ENGINE (ITUNES WITH PROXY FOR IPHONE) ---
+async function searchOnlineTracks(query) {
     if (!query) return;
     const skeleton = document.getElementById('skeleton-template');
     if (onlineResults && skeleton) {
         onlineResults.innerHTML = skeleton.innerHTML.repeat(3);
     }
-
-    // Remove any existing callback scripts to clean up
-    const oldScript = document.getElementById('itunes-jsonp');
-    if (oldScript) oldScript.remove();
-
-    // Create a unique callback name
-    const callbackName = 'itunesCallback_' + Date.now();
     
-    // Define the global callback function
-    window[callbackName] = function(data) {
+    try {
+        // Using allorigins proxy to bypass iOS/Safari CORS and Tracking blocks
+        const targetUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&limit=10`;
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+        
+        const res = await fetch(proxyUrl);
+        if (!res.ok) throw new Error("Proxy error");
+        
+        const data = await res.json();
+        const itunesData = JSON.parse(data.contents);
+        
         if (!onlineResults) return;
         onlineResults.innerHTML = '';
         
-        if (!data.results || data.results.length === 0) {
-            onlineResults.innerHTML = '<div class="empty-results-msg">No results found for "' + query + '"</div>';
+        if (!itunesData.results || itunesData.results.length === 0) {
+            onlineResults.innerHTML = `<div class="empty-results-msg">No results found for "${query}"</div>`;
             return;
         }
 
-        data.results.forEach(track => {
+        itunesData.results.forEach(track => {
             const item = document.createElement('div');
             item.className = 'result-item';
             item.innerHTML = `
@@ -356,15 +358,7 @@ function searchOnlineTracks(query) {
                 <button class="add-result-btn"><i class="fas fa-plus"></i></button>
             `;
             item.querySelector('button').onclick = () => {
-                const newSong = { 
-                    id: Date.now(), 
-                    displayName: track.trackName, 
-                    artist: track.artistName, 
-                    src: track.previewUrl, 
-                    cover: track.artworkUrl100.replace('100x100', '600x600'), 
-                    liked: false, 
-                    bookmarked: false 
-                };
+                const newSong = { id: Date.now(), displayName: track.trackName, artist: track.artistName, src: track.previewUrl, cover: track.artworkUrl100.replace('100x100', '600x600'), liked: false, bookmarked: false };
                 songs.push(newSong);
                 saveAllData();
                 initLibrary();
@@ -373,29 +367,16 @@ function searchOnlineTracks(query) {
             };
             onlineResults.appendChild(item);
         });
-
-        // Cleanup
-        delete window[callbackName];
-        const script = document.getElementById('itunes-jsonp');
-        if (script) script.remove();
-    };
-
-    // Create and inject the script tag
-    const script = document.createElement('script');
-    script.id = 'itunes-jsonp';
-    script.src = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&limit=10&callback=${callbackName}`;
-    
-    script.onerror = () => {
+    } catch (e) { 
+        console.error("Search Error:", e);
         if (onlineResults) {
             onlineResults.innerHTML = `<div class="error-msg" style="color: #ff4d4d; padding: 20px; text-align: center;">
                 <i class="fas fa-exclamation-circle" style="display: block; font-size: 1.5rem; margin-bottom: 8px;"></i>
-                Search failed to load.<br>
-                <span style="font-size: 0.8rem; color: var(--text-dim);">This might be a network issue.</span>
+                Search failed: ${e.message}<br>
+                <span style="font-size: 0.8rem; color: var(--text-dim);">Check your internet connection or ad-blocker.</span>
             </div>`;
         }
-    };
-
-    document.body.appendChild(script);
+    }
 }
 
 // --- EVENT LISTENERS ---
@@ -641,11 +622,26 @@ document.getElementById('progress-container').onclick = (e) => {
 
 let debounceT;
 const clearOnlineSearch = document.getElementById('clear-online-search');
+const executeOnlineSearch = document.getElementById('execute-online-search');
+
+function triggerOnlineSearch() {
+    const query = onlineSearchInput.value.trim();
+    searchOnlineTracks(query);
+}
+
+if (executeOnlineSearch) {
+    executeOnlineSearch.onclick = triggerOnlineSearch;
+}
+
+onlineSearchInput.onkeydown = (e) => {
+    if (e.key === 'Enter') {
+        triggerOnlineSearch();
+    }
+};
+
 onlineSearchInput.oninput = (e) => {
     const query = e.target.value.trim();
     if (clearOnlineSearch) clearOnlineSearch.style.display = query ? 'block' : 'none';
-    clearTimeout(debounceT);
-    debounceT = setTimeout(() => searchOnlineTracks(query), 600);
 };
 
 if (clearOnlineSearch) {
