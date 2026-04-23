@@ -18,6 +18,7 @@ let isShuffle = false;
 let isRepeat = false;
 let songIndex = 0;
 let currentPlaylist = [];
+let currentSearchId = 0;
 
 // --- DOM ELEMENTS ---
 const audio = document.getElementById('audio');
@@ -324,30 +325,76 @@ function updateBackgroundEffects() {
 // --- SEARCH ENGINE (ITUNES) ---
 async function searchOnlineTracks(query) {
     if (!query) return;
+    const searchId = ++currentSearchId;
     onlineResults.innerHTML = document.getElementById('skeleton-template').innerHTML.repeat(3);
+    
     try {
-        const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&limit=10`);
+        const isArabic = /[\u0600-\u06FF]/.test(query);
+        const country = isArabic ? 'EG' : 'US';
+        
+        // Reverting to official iTunes API for 100% accuracy (30s previews)
+        const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&entity=song&limit=25&country=${country}`);
         const data = await res.json();
+        
+        if (searchId !== currentSearchId) return;
         onlineResults.innerHTML = '';
+
+        if (!data.results || data.results.length === 0) {
+            onlineResults.innerHTML = '<div class="empty-results-msg"><i class="fas fa-search"></i><p>No tracks found for "' + query + '"</p></div>';
+            return;
+        }
+
         data.results.forEach(track => {
+            if (track.wrapperType !== 'track') return;
+
             const item = document.createElement('div');
             item.className = 'result-item';
+            
+            const cover = track.artworkUrl100 ? track.artworkUrl100.replace('100x100', '600x600') : 'assets/cover1.png';
+            const artistName = track.artistName || 'Unknown Artist';
+            const trackName = track.trackName || 'Unknown Title';
+            const previewUrl = track.previewUrl;
+
             item.innerHTML = `
-                <img class="result-cover" src="${track.artworkUrl100}">
-                <div class="result-info"><div class="result-title">${track.trackName}</div><div class="result-artist">${track.artistName}</div></div>
-                <button class="add-result-btn"><i class="fas fa-plus"></i></button>
+                <img class="result-cover" src="${cover}" loading="lazy">
+                <div class="result-info">
+                    <div class="result-title">${trackName}</div>
+                    <div class="result-artist">${artistName}</div>
+                </div>
+                <button class="add-result-btn" title="Add Track"><i class="fas fa-plus"></i></button>
             `;
-            item.querySelector('button').onclick = () => {
-                const newSong = { id: Date.now(), displayName: track.trackName, artist: track.artistName, src: track.previewUrl, cover: track.artworkUrl100.replace('100x100', '600x600'), liked: false, bookmarked: false };
+            
+            const addBtn = item.querySelector('.add-result-btn');
+            addBtn.onclick = () => {
+                const newSong = { 
+                    id: Date.now(), 
+                    displayName: trackName, 
+                    artist: artistName, 
+                    src: previewUrl, 
+                    cover: cover, 
+                    liked: false, 
+                    bookmarked: false,
+                    isFull: false 
+                };
+                
                 songs.push(newSong);
                 saveAllData();
                 initLibrary();
-                modalOverlay.classList.remove('active');
-                showToast(`Added ${track.trackName}`);
+                showToast(`Added ${trackName} (Preview)`);
+                
+                addBtn.innerHTML = '<i class="fas fa-check"></i>';
+                addBtn.style.background = '#4caf50';
+                setTimeout(() => {
+                    modalOverlay.classList.remove('active');
+                }, 400);
             };
             onlineResults.appendChild(item);
         });
-    } catch (e) { onlineResults.innerHTML = 'Search failed.'; }
+    } catch (e) { 
+        if (searchId === currentSearchId) {
+            onlineResults.innerHTML = '<div class="empty-results-msg">Search failed. Check your internet connection.</div>'; 
+        }
+    }
 }
 
 // --- EVENT LISTENERS ---
