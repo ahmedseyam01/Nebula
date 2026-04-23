@@ -555,10 +555,57 @@ function openProfilePage() {
 }
 
 mainSearchInput.oninput = (e) => {
-    const val = e.target.value.toLowerCase();
-    currentPlaylist = songs.filter(s => s.displayName.toLowerCase().includes(val) || s.artist.toLowerCase().includes(val));
-    if (!val) currentPlaylist = [...songs];
-    renderTrackGrid(currentPlaylist);
+    const val = e.target.value.toLowerCase().trim();
+    const heroSection = document.getElementById('hero-section');
+    const recentHeader = document.getElementById('recent-header');
+    const recentlyPlayedGrid = document.getElementById('recently-played-grid');
+    const gridTitle = document.getElementById('main-grid-title');
+    const activeNav = document.querySelector('.nav-item.active');
+
+    if (val) {
+        // Hide Home-specific sections when searching
+        if (heroSection) heroSection.style.display = 'none';
+        if (recentHeader) recentHeader.style.display = 'none';
+        if (recentlyPlayedGrid) recentlyPlayedGrid.style.display = 'none';
+
+        // Filter and Render
+        currentPlaylist = songs.filter(s => 
+            s.displayName.toLowerCase().includes(val) || 
+            s.artist.toLowerCase().includes(val)
+        );
+
+        gridTitle.innerText = `Search Results for "${val}"`;
+        
+        if (currentPlaylist.length === 0) {
+            trackGrid.innerHTML = `
+                <div class="empty-search-state">
+                    <i class="fas fa-search-minus"></i>
+                    <h3>No matches found</h3>
+                    <p>We couldn't find any songs matching "${val}". Try a different term!</p>
+                </div>
+            `;
+        } else {
+            renderTrackGrid(currentPlaylist);
+        }
+    } else {
+        // Restore UI based on current active nav
+        if (activeNav && activeNav.id === 'nav-home') {
+            if (heroSection) heroSection.style.display = 'block';
+            if (recentHeader) recentHeader.style.display = 'flex';
+            if (recentlyPlayedGrid) recentlyPlayedGrid.style.display = 'grid';
+            gridTitle.innerText = "Your Library";
+            currentPlaylist = [...songs];
+        } else if (activeNav) {
+            // Re-trigger click to restore the specific view (Favorites, Discover, etc.)
+            activeNav.click();
+            return;
+        } else {
+            // Default fallback
+            currentPlaylist = [...songs];
+            gridTitle.innerText = "Your Library";
+        }
+        renderTrackGrid(currentPlaylist);
+    }
 };
 
 document.getElementById('tab-file').onclick = () => {
