@@ -156,5 +156,11 @@ const auth = {
             if (e.target.closest('#logout-btn')) this.logout();
             else library.show({ name: 'profile' });
         });
+        authUI.userChip.addEventListener('keydown', e => {
+            if ((e.key === 'Enter' || e.key === ' ') && e.target === authUI.userChip) {
+                e.preventDefault();
+                library.show({ name: 'profile' });
+            }
+        });
     }
 };
