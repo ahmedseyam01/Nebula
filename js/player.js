@@ -290,7 +290,9 @@ const player = {
 
         document.addEventListener('keydown', e => {
             if (e.target.closest('input, textarea, select, [contenteditable]') || $('.modal-overlay.active')) return;
-            if (e.code === 'Space') { e.preventDefault(); this.toggle(); }
+            // Focused buttons/links already react to Space natively; handling it here too would toggle twice.
+            const onControl = e.target.closest('button, a, [role="button"]');
+            if (e.code === 'Space' && !onControl) { e.preventDefault(); this.toggle(); }
             else if (e.code === 'ArrowRight') this.next();
             else if (e.code === 'ArrowLeft') this.prev();
         });
