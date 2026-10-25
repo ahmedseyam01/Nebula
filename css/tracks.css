@@ -1,48 +1,25 @@
 /* =====================================================
-   TRACKS — grid cards, list rows, recently played
+   TRACKS — numbered list rows and "recently played" tiles
    ===================================================== */
-
-.track-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-    gap: 22px;
-}
 
 .track-card {
     position: relative;
     display: flex;
-    flex-direction: column;
-    padding: 14px;
-    border-radius: 18px;
-    background: var(--surface);
-    border: 1px solid transparent;
-    transition: var(--transition);
+    align-items: center;
+    border-radius: var(--radius-sm);
+    transition: background 0.15s var(--ease);
 }
 
 .track-card.animate-in {
-    animation: fadeUp 0.45s var(--ease) backwards;
-}
-
-.track-card:hover {
-    background: var(--surface-hover);
-    transform: translateY(-4px);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
-}
-
-.track-card.active {
-    background: var(--primary-soft);
-    border-color: rgba(124, 77, 255, 0.4);
+    animation: fadeUp 0.3s var(--ease) backwards;
 }
 
 .card-cover {
     position: relative;
     display: block;
-    width: 100%;
-    aspect-ratio: 1;
-    margin-bottom: 14px;
+    flex-shrink: 0;
     overflow: hidden;
-    border-radius: 12px;
-    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.3);
+    aspect-ratio: 1;
 }
 
 .card-cover img {
@@ -57,48 +34,33 @@
     align-items: center;
     width: 100%;
     height: 100%;
-    font-size: 3rem;
-    color: rgba(255, 255, 255, 0.25);
-    background: linear-gradient(135deg, #1a1a4a, var(--primary));
+    color: var(--text-faint);
+    background: var(--surface-active);
 }
 
 .card-play-btn {
-    position: absolute;
-    right: 10px;
-    bottom: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #9c6fff, var(--primary));
-    box-shadow: 0 8px 22px rgba(124, 77, 255, 0.5);
-    opacity: 0;
-    transform: translateY(8px);
-    transition: var(--transition);
-}
-
-.track-card:hover .card-play-btn,
-.track-card.active .card-play-btn {
-    opacity: 1;
-    transform: none;
+    display: none;
 }
 
 .card-info {
+    flex: 1;
     min-width: 0;
 }
 
 .card-title {
-    font-size: 0.98rem;
-    font-weight: 700;
+    font-size: 0.95rem;
+    font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
+.track-card.active .card-title {
+    color: var(--primary-light);
+}
+
 .card-artist {
-    margin-top: 4px;
+    margin-top: 2px;
     font-size: 0.82rem;
     color: var(--text-dim);
     white-space: nowrap;
@@ -106,154 +68,204 @@
     text-overflow: ellipsis;
 }
 
+/* ---------- List rows ---------- */
+.track-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.track-list .track-card {
+    gap: 14px;
+    padding: 6px 12px 6px 8px;
+    cursor: pointer;
+}
+
+.track-list .track-card:hover,
+.track-list .track-card:focus-within {
+    background: var(--surface-hover);
+}
+
+.track-list .track-card.active {
+    background: var(--surface-active);
+}
+
+.row-index {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    color: var(--text-dim);
+    font-size: 0.95rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.row-index i {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--text);
+    opacity: 0;
+}
+
+.track-card:hover .row-index .num,
+.track-card.playing .row-index .num {
+    opacity: 0;
+}
+
+.track-card:hover .row-index i,
+.track-card.playing .row-index i {
+    opacity: 1;
+}
+
+.track-card.active .row-index .num {
+    color: var(--primary-light);
+}
+
+.track-list .card-cover {
+    width: 40px;
+    border-radius: var(--radius-sm);
+    pointer-events: none;
+}
+
+.track-list .cover-fallback {
+    font-size: 0.9rem;
+}
+
 .card-actions {
     display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
+    align-items: center;
+    gap: 2px;
 }
 
 .card-actions .icon-btn {
     width: 32px;
     height: 32px;
-    font-size: 0.85rem;
-    color: var(--text-faint);
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    opacity: 0;
+}
+
+.track-card:hover .card-actions .icon-btn,
+.track-card:focus-within .card-actions .icon-btn,
+.card-actions .icon-btn.on {
+    opacity: 1;
 }
 
 .card-actions .icon-btn:hover {
     color: var(--text);
+    background: none;
+    transform: scale(1.06);
 }
 
 .card-actions .icon-btn.on {
-    color: var(--accent);
+    color: var(--primary);
 }
 
 .card-actions .icon-btn.danger:hover {
     color: var(--danger);
-    background: rgba(255, 92, 122, 0.12);
 }
 
-/* ---------- Recently played (compact) ---------- */
+/* ---------- Recently played tiles ---------- */
 .track-grid.mini {
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 8px;
 }
 
 .track-grid.mini .track-card {
-    flex-direction: row;
-    align-items: center;
-    gap: 14px;
-    padding: 8px;
-    border-radius: 14px;
+    overflow: hidden;
+    background: var(--bg-elevated);
 }
 
 .track-grid.mini .track-card:hover {
-    transform: none;
+    background: var(--surface-active);
 }
 
-.track-grid.mini .card-cover {
-    width: 56px;
-    min-width: 56px;
-    margin: 0;
-    border-radius: 10px;
-}
-
-.track-grid.mini .cover-fallback {
-    font-size: 1.2rem;
-}
-
-.track-grid.mini .card-play-btn {
-    inset: 0;
-    width: auto;
-    height: auto;
-    border-radius: 0;
-    background: rgba(0, 0, 0, 0.45);
-    box-shadow: none;
-    transform: none;
-}
-
-.track-grid.mini .card-info {
-    flex: 1;
-}
-
+.track-grid.mini .row-index,
 .track-grid.mini .card-actions {
     display: none;
 }
 
-/* ---------- List rows (profile, Quran) ---------- */
-.track-grid.track-list {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+.track-grid.mini .card-cover {
+    width: 56px;
+    border-radius: 0;
 }
 
-.track-list .track-card {
-    flex-direction: row;
-    align-items: center;
-    gap: 16px;
-    padding: 8px 12px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.02);
-}
-
-.track-list .track-card:hover {
-    transform: none;
-    box-shadow: none;
-}
-
-.track-list .card-cover {
-    width: 52px;
-    min-width: 52px;
-    margin: 0;
-    border-radius: 9px;
-}
-
-.track-list .cover-fallback {
+.track-grid.mini .cover-fallback {
     font-size: 1.1rem;
 }
 
-.track-list .card-play-btn {
-    inset: 0;
-    width: auto;
-    height: auto;
-    border-radius: 0;
-    background: rgba(0, 0, 0, 0.45);
-    box-shadow: none;
-    transform: none;
-    font-size: 0.85rem;
+.track-grid.mini .card-info {
+    padding: 0 12px;
 }
 
-.track-list .card-info {
-    flex: 1;
+.track-grid.mini .card-title {
+    font-weight: 700;
+    font-size: 0.88rem;
 }
 
-.track-list .card-actions {
-    margin: 0;
-    gap: 4px;
+.track-grid.mini .card-artist {
+    display: none;
+}
+
+.track-grid.mini .card-play-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #000;
+    font-size: 0.75rem;
+    opacity: 0;
+    transform: translateY(-50%);
+    transition: opacity 0.15s var(--ease);
+}
+
+.track-grid.mini .card-cover {
+    position: static;
+}
+
+.track-grid.mini .track-card:hover .card-play-btn,
+.track-grid.mini .track-card.playing .card-play-btn {
+    opacity: 1;
 }
 
 @media (max-width: 768px) {
-    .track-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 14px;
-    }
-
-    .track-card {
-        padding: 10px;
-    }
-
-    .card-play-btn {
-        opacity: 1;
-        transform: none;
-        width: 38px;
-        height: 38px;
-    }
-
     .track-grid.mini {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .track-list .card-actions .icon-btn[data-action="bookmark"],
-    .track-list .card-actions .icon-btn[data-action="playlist"] {
+    .track-grid.mini .card-cover {
+        width: 48px;
+    }
+
+    .track-grid.mini .card-play-btn {
+        display: none;
+    }
+
+    .track-list .track-card {
+        padding: 6px 4px;
+        gap: 12px;
+    }
+
+    .row-index {
+        display: none;
+    }
+
+    .card-actions .icon-btn {
+        opacity: 1;
+    }
+
+    .card-actions .icon-btn[data-action="bookmark"],
+    .card-actions .icon-btn[data-action="playlist"] {
         display: none;
     }
 }
