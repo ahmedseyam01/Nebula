@@ -61,11 +61,12 @@ const player = {
     },
 
     playFrom(songs, songId) {
-        if (this.current?.id === songId) {
+        const isCurrent = this.current?.id === songId;
+        this.setQueue(songs, songId); // next/prev should follow the list the user played from
+        if (isCurrent) {
             this.toggle();
             return;
         }
-        this.setQueue(songs, songId);
         this.load(this.current);
         this.play();
     },
