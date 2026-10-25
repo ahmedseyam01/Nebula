@@ -98,7 +98,7 @@ const player = {
             if (e.name !== 'AbortError') console.warn('Playback failed:', e);
         });
         store.pushHistory(song.id);
-        document.dispatchEvent(new CustomEvent('library:changed'));
+        document.dispatchEvent(new CustomEvent('history:changed'));
     },
 
     pause() {

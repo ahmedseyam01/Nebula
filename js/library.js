@@ -93,9 +93,8 @@ const library = {
 
         const isHome = this.view.name === 'home';
         libraryUI.homeSections.hidden = !isHome;
-        libraryUI.recentSection.hidden = !isHome || !store.history.length;
         libraryUI.profileHeader.hidden = this.view.name !== 'profile';
-        if (isHome) this.renderTracks(store.history.map(id => store.getSong(id)).filter(Boolean), libraryUI.recentGrid, animate);
+        if (isHome) this.renderRecent(animate);
         if (this.view.name === 'profile') this.renderProfile();
 
         const songs = this.songsForView();
@@ -107,6 +106,12 @@ const library = {
         else libraryUI.grid.innerHTML = this.emptyState();
 
         this.updateCounts();
+        this.markActive();
+    },
+
+    renderRecent(animate = false) {
+        libraryUI.recentSection.hidden = !store.history.length;
+        this.renderTracks(store.history.map(id => store.getSong(id)).filter(Boolean), libraryUI.recentGrid, animate);
         this.markActive();
     },
 
@@ -361,6 +366,9 @@ const library = {
             this.renderSidebar();
             this.render();
             player.renderLike();
+        });
+        document.addEventListener('history:changed', () => {
+            if (this.view.name === 'home') this.renderRecent();
         });
         document.addEventListener('player:trackchange', () => this.markActive());
         document.addEventListener('player:statechange', () => this.markActive());
