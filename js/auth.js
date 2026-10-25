@@ -1,193 +1,131 @@
-/** 
- * auth.js - Custom Native Authentication & Firebase Google Extension
+/**
+ * auth.js - Simple local (browser-only) accounts.
+ * Note: this is a demo login stored in localStorage, not real security.
  */
 
-const authModalOverlay = document.getElementById('auth-modal-overlay');
-const openAuthBtn = document.getElementById('open-auth-btn');
-const closeAuthModal = document.getElementById('close-auth-modal');
-const loginFormContainer = document.getElementById('login-form-container');
-const registerFormContainer = document.getElementById('register-form-container');
-const switchToRegister = document.getElementById('switch-to-register');
-const switchToLogin = document.getElementById('switch-to-login');
-const authModalTitle = document.getElementById('auth-modal-title');
-
-// UI DOM
-const loggedOutView = document.getElementById('open-auth-btn');
-const loggedInView = document.getElementById('logged-in-view');
-const userAvatar = document.getElementById('user-avatar');
-const userName = document.getElementById('user-name');
-const logoutBtn = document.getElementById('logout-btn');
-
-// --- MODAL TOGGLES ---
-if (openAuthBtn) {
-    openAuthBtn.onclick = () => authModalOverlay.classList.add('active');
-}
-if (closeAuthModal) {
-    closeAuthModal.onclick = () => authModalOverlay.classList.remove('active');
-}
-const authFeedbackMsg = document.getElementById('auth-feedback-msg');
-
-function showAuthFeedback(msg, isError = true) {
-    if (!authFeedbackMsg) return;
-    authFeedbackMsg.style.display = 'block';
-    authFeedbackMsg.innerText = msg;
-    if (isError) {
-        authFeedbackMsg.style.backgroundColor = 'rgba(255, 60, 60, 0.1)';
-        authFeedbackMsg.style.color = '#ff6b6b';
-        authFeedbackMsg.style.border = '1px solid rgba(255, 107, 107, 0.3)';
-    } else {
-        authFeedbackMsg.style.backgroundColor = 'rgba(81, 207, 102, 0.1)';
-        authFeedbackMsg.style.color = '#51cf66';
-        authFeedbackMsg.style.border = '1px solid rgba(81, 207, 102, 0.3)';
-    }
-}
-
-// Clear feedback when toggling
-if (switchToRegister) {
-    switchToRegister.onclick = () => {
-        loginFormContainer.style.display = 'none';
-        registerFormContainer.style.display = 'block';
-        authModalTitle.innerText = 'Create Account';
-        if (authFeedbackMsg) authFeedbackMsg.style.display = 'none';
-    };
-}
-if (switchToLogin) {
-    switchToLogin.onclick = () => {
-        registerFormContainer.style.display = 'none';
-        loginFormContainer.style.display = 'block';
-        authModalTitle.innerText = 'Welcome Back';
-        if (authFeedbackMsg) authFeedbackMsg.style.display = 'none';
-    };
-}
-
-// --- NATIVE LOCAL AUTHENTICATION ---
-let currentUser = null;
-
-function loadNativeSession() {
-    const session = localStorage.getItem('nebula_current_user');
-    if (session) {
-        currentUser = JSON.parse(session);
-        updateAuthUI(currentUser);
-    }
-}
-
-function updateAuthUI(user) {
-    const navProfile = document.getElementById('nav-profile');
-    if (user) {
-        loggedOutView.style.display = 'none';
-        loggedInView.style.display = 'flex';
-        userName.innerText = user.name;
-        userAvatar.src = user.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name) + '&background=random';
-        if (navProfile) navProfile.style.display = 'flex';
-    } else {
-        loggedOutView.style.display = 'flex';
-        loggedInView.style.display = 'none';
-        if (navProfile) navProfile.style.display = 'none';
-        
-        // If viewing profile page and logged out, switch back to home
-        const profileHeader = document.getElementById('profile-header');
-        if (profileHeader && profileHeader.style.display === 'flex') {
-            document.getElementById('nav-home').click();
-        }
-    }
-}
-
-function validateEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-document.getElementById('register-submit-btn').onclick = () => {
-    const name = document.getElementById('register-name').value.trim();
-    const email = document.getElementById('register-email').value.trim();
-    const password = document.getElementById('register-password').value;
-
-    if (!name || !email || !password) {
-        showAuthFeedback("Please fill all required fields!");
-        return;
-    }
-
-    if (!validateEmail(email)) {
-        showAuthFeedback("Please enter a valid email format!");
-        return;
-    }
-
-    if (password.length < 6) {
-        showAuthFeedback("Password must be at least 6 characters!");
-        return;
-    }
-
-    const users = JSON.parse(localStorage.getItem('nebula_users') || '[]');
-    if (users.find(u => u.email === email)) {
-        showAuthFeedback("Email is already registered!");
-        return;
-    }
-
-    const newUser = { id: Date.now(), name, email, password };
-    users.push(newUser);
-    localStorage.setItem('nebula_users', JSON.stringify(users));
-
-    // Auto login
-    currentUser = { name: newUser.name, email: newUser.email };
-    localStorage.setItem('nebula_current_user', JSON.stringify(currentUser));
-    
-    showAuthFeedback("Account Created Successfully!", false);
-    setTimeout(() => {
-        authModalOverlay.classList.remove('active');
-        updateAuthUI(currentUser);
-        if (typeof showToast === 'function') showToast(`Welcome, ${name}!`);
-    }, 1000);
+const authUI = {
+    overlay: $('#auth-modal'),
+    title: $('#auth-modal-title'),
+    feedback: $('#auth-feedback'),
+    loginForm: $('#login-form'),
+    registerForm: $('#register-form'),
+    signInBtn: $('#open-auth-btn'),
+    userChip: $('#user-chip'),
+    userName: $('#user-name'),
+    userAvatar: $('#user-avatar'),
+    navProfile: $('#nav-profile')
 };
 
-document.getElementById('login-submit-btn').onclick = () => {
-    const email = document.getElementById('login-email').value.trim();
-    const password = document.getElementById('login-password').value;
+const auth = {
+    user: readJSON('nebula_current_user', null),
 
-    if (!email || !password) {
-        showAuthFeedback("Please fill all required fields!");
-        return;
-    }
-    
-    if (!validateEmail(email)) {
-        showAuthFeedback("Please enter a valid email format!");
-        return;
-    }
+    init() {
+        this.bindEvents();
+        this.renderUI();
+    },
 
-    const users = JSON.parse(localStorage.getItem('nebula_users') || '[]');
-    const user = users.find(u => u.email === email && u.password === password);
+    open(mode = 'login') {
+        this.switchMode(mode);
+        authUI.overlay.classList.add('active');
+        $('input', mode === 'login' ? authUI.loginForm : authUI.registerForm).focus();
+    },
 
-    if (user) {
-        currentUser = { name: user.name, email: user.email };
-        localStorage.setItem('nebula_current_user', JSON.stringify(currentUser));
-        showAuthFeedback("Login Successful!", false);
-        
+    close() {
+        authUI.overlay.classList.remove('active');
+    },
+
+    switchMode(mode) {
+        const isLogin = mode === 'login';
+        authUI.loginForm.hidden = !isLogin;
+        authUI.registerForm.hidden = isLogin;
+        authUI.title.textContent = isLogin ? 'Welcome Back' : 'Create Account';
+        authUI.feedback.hidden = true;
+    },
+
+    feedback(message, isError = true) {
+        authUI.feedback.hidden = false;
+        authUI.feedback.textContent = message;
+        authUI.feedback.classList.toggle('error', isError);
+        authUI.feedback.classList.toggle('success', !isError);
+    },
+
+    users() {
+        return readJSON('nebula_users', []);
+    },
+
+    setUser(user) {
+        this.user = user ? { name: user.name, email: user.email } : null;
+        if (this.user) writeJSON('nebula_current_user', this.user);
+        else localStorage.removeItem('nebula_current_user');
+        this.renderUI();
+        document.dispatchEvent(new CustomEvent('auth:change'));
+    },
+
+    register(form) {
+        const name = form.name.value.trim();
+        const email = form.email.value.trim().toLowerCase();
+        const password = form.password.value;
+
+        if (!name || !email || !password) return this.feedback('Please fill all required fields!');
+        if (!form.email.checkValidity()) return this.feedback('Please enter a valid email address!');
+        if (password.length < 6) return this.feedback('Password must be at least 6 characters!');
+
+        const users = this.users();
+        if (users.some(u => u.email.toLowerCase() === email)) return this.feedback('Email is already registered!');
+
+        const user = { id: createId('user'), name, email, password };
+        writeJSON('nebula_users', [...users, user]);
+        this.complete(user, 'Account created!', `Welcome, ${name}!`);
+    },
+
+    login(form) {
+        const email = form.email.value.trim().toLowerCase();
+        const password = form.password.value;
+        if (!email || !password) return this.feedback('Please fill all required fields!');
+
+        const user = this.users().find(u => u.email.toLowerCase() === email && u.password === password);
+        if (!user) return this.feedback('Invalid email or password!');
+        this.complete(user, 'Login successful!', `Welcome back, ${user.name}!`);
+    },
+
+    complete(user, message, toast) {
+        this.feedback(message, false);
         setTimeout(() => {
-            authModalOverlay.classList.remove('active');
-            updateAuthUI(currentUser);
-            if (typeof showToast === 'function') showToast(`Welcome back, ${user.name}!`);
-        }, 800);
-    } else {
-        showAuthFeedback("Invalid email or password!");
+            this.close();
+            authUI.loginForm.reset();
+            authUI.registerForm.reset();
+            this.setUser(user);
+            showToast(toast);
+        }, 600);
+    },
+
+    logout() {
+        this.setUser(null);
+        showToast('Logged out successfully.', 'info');
+    },
+
+    renderUI() {
+        const user = this.user;
+        authUI.signInBtn.hidden = Boolean(user);
+        authUI.userChip.hidden = !user;
+        authUI.navProfile.hidden = !user;
+        if (user) {
+            authUI.userName.textContent = user.name;
+            authUI.userAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=7c4dff&color=fff&bold=true`;
+        }
+    },
+
+    bindEvents() {
+        authUI.signInBtn.addEventListener('click', () => this.open('login'));
+        $('#close-auth-modal').addEventListener('click', () => this.close());
+        $('#switch-to-register').addEventListener('click', () => this.switchMode('register'));
+        $('#switch-to-login').addEventListener('click', () => this.switchMode('login'));
+        authUI.loginForm.addEventListener('submit', e => { e.preventDefault(); this.login(e.target); });
+        authUI.registerForm.addEventListener('submit', e => { e.preventDefault(); this.register(e.target); });
+
+        authUI.userChip.addEventListener('click', e => {
+            if (e.target.closest('#logout-btn')) this.logout();
+            else library.show({ name: 'profile' });
+        });
     }
 };
-
-logoutBtn.onclick = (e) => {
-    e.stopPropagation();
-    // Clear Native Auth
-    currentUser = null;
-    localStorage.removeItem('nebula_current_user');
-    
-    // Clear Firebase Auth if present
-    if (typeof firebase !== 'undefined' && firebase.apps.length) {
-        firebase.auth().signOut().catch(e => console.log(e));
-    }
-    
-    updateAuthUI(null);
-    if (typeof showToast === 'function') showToast("Logged out successfully.");
-};
-
-// Start Native Session
-loadNativeSession();
-
-
-// Removed Firebase Dynamic Extension per user request.
-
