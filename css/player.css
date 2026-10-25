@@ -9,10 +9,8 @@
     grid-template-columns: 1fr 1.6fr 1fr;
     align-items: center;
     gap: 24px;
-    padding: 0 28px;
-    background: rgba(10, 8, 30, 0.96);
-    border-top: 1px solid var(--border);
-    backdrop-filter: blur(20px);
+    padding: 0 16px;
+    background: var(--bg);
 }
 
 /* ---------- Current track ---------- */
@@ -27,9 +25,8 @@
     width: 56px;
     height: 56px;
     min-width: 56px;
-    border-radius: 12px;
+    border-radius: var(--radius-sm);
     object-fit: cover;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
 }
 
 .mini-cover.fallback {
@@ -37,9 +34,8 @@
     justify-content: center;
     align-items: center;
     font-size: 1.3rem;
-    color: var(--primary-light);
-    background: var(--bg-panel);
-    border: 1px solid var(--border);
+    color: var(--text-faint);
+    background: var(--bg-elevated);
 }
 
 .mini-info {
@@ -72,7 +68,7 @@
 }
 
 .like-btn.active {
-    color: var(--accent);
+    color: var(--primary);
 }
 
 /* Visualizer bars */
@@ -93,7 +89,7 @@
     width: 3px;
     height: 30%;
     border-radius: 2px;
-    background: var(--primary-light);
+    background: var(--primary);
 }
 
 .playing-visualizer.active span {
@@ -136,25 +132,36 @@
 }
 
 .control-icon.active {
-    color: var(--primary-light);
-    text-shadow: 0 0 14px var(--primary);
+    position: relative;
+    color: var(--primary);
+}
+
+.control-icon.active::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -7px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: currentColor;
+    transform: translateX(-50%);
 }
 
 .control-icon.muted {
-    color: var(--accent);
+    color: var(--text-faint);
 }
 
 .btn-play-pause {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 46px;
-    height: 46px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: #fff;
-    color: #12082e;
-    font-size: 1.05rem;
-    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15);
+    color: #000;
+    font-size: 0.95rem;
     transition: var(--transition);
 }
 
@@ -189,15 +196,10 @@
 .progress-bar {
     position: relative;
     flex: 1;
-    height: 5px;
-    border-radius: 5px;
-    background: rgba(255, 255, 255, 0.12);
+    height: 4px;
+    border-radius: 4px;
+    background: #4d4d4d;
     cursor: pointer;
-    transition: height 0.2s;
-}
-
-.progress-bar:hover {
-    height: 7px;
 }
 
 .progress-current {
@@ -205,7 +207,11 @@
     width: 0;
     height: 100%;
     border-radius: inherit;
-    background: linear-gradient(90deg, var(--primary), var(--accent));
+    background: #fff;
+}
+
+.progress-bar:hover .progress-current {
+    background: var(--primary);
 }
 
 .progress-current::after {
@@ -238,8 +244,8 @@
     height: 4px;
     appearance: none;
     border-radius: 4px;
-    background: rgba(255, 255, 255, 0.15);
-    accent-color: var(--primary);
+    background: #4d4d4d;
+    accent-color: #fff;
     cursor: pointer;
 }
 
