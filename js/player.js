@@ -72,9 +72,14 @@ const player = {
 
     load(song, startAt = 0) {
         if (!song) return this.renderEmpty();
-        audio.src = song.src;
-        if (startAt > 0) {
-            audio.addEventListener('loadedmetadata', () => { audio.currentTime = startAt; }, { once: true });
+        // An uploaded file whose blob is gone has no src; "" would resolve to the page URL and error.
+        if (song.src) audio.src = song.src;
+        else { audio.removeAttribute('src'); audio.load(); }
+        if (startAt > 0 && song.src) {
+            const src = audio.src;
+            audio.addEventListener('loadedmetadata', () => {
+                if (audio.src === src) audio.currentTime = startAt; // ignore if another track loaded meanwhile
+            }, { once: true });
         }
         this.renderTrack(song);
         this.updateMediaSession(song);
