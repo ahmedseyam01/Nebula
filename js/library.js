@@ -358,7 +358,10 @@ const library = {
                 this.highlightNav();
                 this.render();
             } else {
-                this.show(this.previousView);
+                // Restore the previous view as it was (show() would reshuffle Discover).
+                this.view = this.previousView;
+                this.highlightNav();
+                this.render();
             }
         });
 
