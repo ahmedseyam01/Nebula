@@ -219,10 +219,6 @@ body {
     margin-bottom: 10px;
 }
 
-.hero-title br {
-    display: none;
-}
-
 .hero p {
     color: var(--text-dim);
     font-size: 0.92rem;
