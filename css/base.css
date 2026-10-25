@@ -2,39 +2,37 @@
    BASE — tokens, reset, typography, shared animations
    ===================================================== */
 
-/* Minimal dark theme: near-black canvas, flat grey panels, a single purple accent. */
 :root {
-    --primary: #8b5cf6;
-    --primary-light: #a78bfa;
-    --primary-soft: rgba(139, 92, 246, 0.14);
-    --accent: #8b5cf6;
-    --success: #1ed760;
-    --danger: #f15e6c;
+    --primary: #7c4dff;
+    --primary-light: #b47cff;
+    --primary-soft: rgba(124, 77, 255, 0.16);
+    --secondary: #448aff;
+    --accent: #ff4081;
+    --success: #4caf50;
+    --danger: #ff5c7a;
 
-    --bg: #000000;
-    --bg-panel: #121212;
-    --bg-elevated: #1f1f1f;
-    --surface: transparent;
-    --surface-hover: #1f1f1f;
-    --surface-active: #2a2a2a;
-    --border: #2a2a2a;
-    --border-strong: #3e3e3e;
+    --bg: #07061a;
+    --bg-elevated: #110e2e;
+    --bg-panel: #15122f;
+    --surface: rgba(255, 255, 255, 0.04);
+    --surface-hover: rgba(255, 255, 255, 0.08);
+    --border: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.16);
 
     --text: #ffffff;
-    --text-dim: #b3b3b3;
-    --text-faint: #727272;
+    --text-dim: rgba(255, 255, 255, 0.62);
+    --text-faint: rgba(255, 255, 255, 0.38);
 
-    --radius-sm: 4px;
-    --radius: 8px;
-    --radius-lg: 8px;
-    --shadow: 0 16px 24px rgba(0, 0, 0, 0.5);
-    --ease: cubic-bezier(0.3, 0, 0.4, 1);
-    --transition: all 0.15s var(--ease);
+    --radius-sm: 8px;
+    --radius: 14px;
+    --radius-lg: 22px;
+    --shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    --transition: all 0.25s var(--ease);
 
-    --gap: 8px;
-    --sidebar-width: 280px;
-    --player-height: 80px;
-    --mobile-bar-height: 56px;
+    --sidebar-width: 250px;
+    --player-height: 92px;
+    --mobile-bar-height: 64px;
     --font: 'Public Sans', 'Noto Kufi Arabic', system-ui, sans-serif;
 }
 
@@ -100,15 +98,16 @@ img {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: var(--primary);
 }
 
 @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(6px); }
+    from { opacity: 0; transform: translateY(14px); }
     to { opacity: 1; transform: translateY(0); }
 }
 

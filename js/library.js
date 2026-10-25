@@ -100,6 +100,7 @@ const library = {
         const songs = this.songsForView();
         libraryUI.title.textContent = this.titleForView();
         libraryUI.count.textContent = `${songs.length} ${songs.length === 1 ? 'track' : 'tracks'}`;
+        libraryUI.grid.classList.toggle('track-list', this.view.name === 'profile' || this.view.name === 'quran');
 
         if (songs.length) this.renderTracks(songs, libraryUI.grid, animate);
         else libraryUI.grid.innerHTML = this.emptyState();
@@ -129,22 +130,19 @@ const library = {
 
     renderTracks(songs, container, animate) {
         container.songs = songs; // used as the play queue when a card is clicked
-        container.innerHTML = songs.map((song, i) => this.cardHTML(song, i, animate)).join('');
+        container.innerHTML = songs.map((song, i) => this.cardHTML(song, animate ? i : -1)).join('');
     },
 
-    cardHTML(song, index, animate) {
+    cardHTML(song, animIndex) {
         const cover = song.cover
             ? `<img src="${escapeHTML(song.cover)}" alt="" loading="lazy">`
             : '<div class="cover-fallback"><i class="fas fa-music"></i></div>';
         const badge = song.isQuran ? '<span class="badge badge-full">Full</span>'
             : song.isPreview ? '<span class="badge badge-preview">30s</span>' : '';
-        const anim = animate ? ` style="animation-delay:${Math.min(index, 12) * 30}ms"` : '';
+        const anim = animIndex >= 0 ? ` style="animation-delay:${Math.min(animIndex, 12) * 40}ms"` : '';
         return `
-            <article class="track-card${animate ? ' animate-in' : ''}" data-id="${escapeHTML(song.id)}"${anim}>
-                <button class="row-index" data-action="play" aria-label="Play ${escapeHTML(song.displayName)}">
-                    <span class="num">${index + 1}</span><i class="fas fa-play"></i>
-                </button>
-                <button class="card-cover" data-action="play" tabindex="-1" aria-hidden="true">
+            <article class="track-card${animIndex >= 0 ? ' animate-in' : ''}" data-id="${escapeHTML(song.id)}"${anim}>
+                <button class="card-cover" data-action="play" aria-label="Play ${escapeHTML(song.displayName)}">
                     ${cover}
                     <span class="card-play-btn"><i class="fas fa-play"></i></span>
                 </button>
@@ -168,9 +166,8 @@ const library = {
             const active = Boolean(current) && card.dataset.id === String(current.id);
             card.classList.toggle('active', active);
             card.classList.toggle('playing', active && player.isPlaying);
-            $$('.card-play-btn i, .row-index i', card).forEach(icon => {
-                icon.className = `fas ${active && player.isPlaying ? 'fa-pause' : 'fa-play'}`;
-            });
+            const icon = $('.card-play-btn i', card);
+            if (icon) icon.className = `fas ${active && player.isPlaying ? 'fa-pause' : 'fa-play'}`;
         });
     },
 
@@ -313,13 +310,6 @@ const library = {
                 const card = actionBtn.closest('.track-card');
                 const song = store.songs.find(s => String(s.id) === card.dataset.id);
                 if (song) this.handleCardAction(actionBtn.dataset.action, song, card.parentElement, actionBtn);
-                return;
-            }
-            // Like Spotify, clicking anywhere on a list row plays it.
-            const row = e.target.closest('.track-list .track-card');
-            if (row) {
-                const song = store.songs.find(s => String(s.id) === row.dataset.id);
-                if (song) this.handleCardAction('play', song, row.parentElement, row);
                 return;
             }
 
