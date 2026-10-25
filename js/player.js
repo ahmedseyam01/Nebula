@@ -42,6 +42,7 @@ const player = {
         this.bindEvents();
         this.lastVolume = parseFloat(localStorage.getItem(STORAGE.volume)) || 0.7;
         this.setVolume(this.lastVolume);
+        this.renderVolume(); // volumechange doesn't fire if the value didn't change
 
         // Restore the last track (and position) without auto-playing it.
         const last = readJSON(STORAGE.lastPlayed, null);
