@@ -105,7 +105,7 @@ const addModal = {
     },
 
     addMany(songs, btn, container) {
-        const added = songs.filter(s => store.addSong(s)).length;
+        const added = store.addSongs(songs);
         if (added) document.dispatchEvent(new CustomEvent('library:changed'));
         showToast(added ? `Added ${added} surahs` : 'Already in your library', added ? 'success' : 'info');
         $$('.add-result-btn:not(.added)', container).forEach(b => this.markAdded(b));

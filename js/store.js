@@ -58,10 +58,16 @@ const store = {
     },
 
     addSong(song) {
-        if (this.hasSong(song.id)) return false;
-        this.songs.push({ liked: false, bookmarked: false, ...song });
+        return this.addSongs([song]) === 1;
+    },
+
+    // Adds many songs with a single save; returns how many were new.
+    addSongs(songs) {
+        const fresh = songs.filter(s => !this.hasSong(s.id));
+        if (!fresh.length) return 0;
+        this.songs.push(...fresh.map(s => ({ liked: false, bookmarked: false, ...s })));
         this.save();
-        return true;
+        return fresh.length;
     },
 
     removeSong(id) {
