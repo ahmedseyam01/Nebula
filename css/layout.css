@@ -1,0 +1,478 @@
+/* =====================================================
+   LAYOUT — app grid, sidebar, main view, topbar, hero
+   ===================================================== */
+
+body {
+    display: grid;
+    grid-template-columns: var(--sidebar-width) 1fr;
+    grid-template-rows: 1fr var(--player-height);
+    grid-template-areas:
+        "sidebar main"
+        "player player";
+}
+
+.bg-glow {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(600px circle at 85% 0%, rgba(124, 77, 255, 0.22), transparent 60%),
+        radial-gradient(500px circle at 20% 100%, rgba(68, 138, 255, 0.12), transparent 60%);
+    z-index: 0;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.45rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--primary-light);
+}
+
+.logo i {
+    animation: spin 6s linear infinite;
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+    grid-area: sidebar;
+    position: relative;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 28px 18px;
+    background: rgba(13, 11, 36, 0.92);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+}
+
+.nav-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 11px 14px;
+    border-radius: 12px;
+    color: var(--text-dim);
+    font-weight: 500;
+    border-left: 3px solid transparent;
+    transition: var(--transition);
+}
+
+.nav-item i {
+    width: 18px;
+    text-align: center;
+}
+
+.nav-item span:first-of-type {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.nav-item:hover {
+    color: var(--text);
+    background: var(--surface);
+}
+
+.nav-item.active {
+    color: var(--text);
+    background: linear-gradient(90deg, var(--primary-soft), transparent);
+    border-left-color: var(--primary);
+}
+
+.nav-item.active i {
+    color: var(--primary-light);
+}
+
+.track-count {
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: var(--surface-hover);
+    color: var(--text-dim);
+}
+
+.delete-playlist {
+    color: var(--text-faint);
+    padding: 2px 4px;
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.nav-item:hover .delete-playlist {
+    opacity: 1;
+}
+
+.delete-playlist:hover {
+    color: var(--danger);
+}
+
+.playlist-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+
+.playlist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 6px 0 14px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-faint);
+}
+
+.sidebar-backdrop {
+    display: none;
+}
+
+.mobile-bar {
+    display: none;
+}
+
+/* ---------- Main ---------- */
+.main-view {
+    grid-area: main;
+    position: relative;
+    z-index: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 40px 60px;
+}
+
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    height: 80px;
+    margin: 0 -40px;
+    padding: 0 40px;
+    background: rgba(7, 6, 26, 0.65);
+    backdrop-filter: blur(14px);
+}
+
+.user-area {
+    display: flex;
+    align-items: center;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 12px;
+    margin: 40px 0 20px;
+}
+
+.section-header h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+}
+
+.section-sub {
+    font-size: 0.82rem;
+    color: var(--text-faint);
+}
+
+/* ---------- Hero ---------- */
+.hero {
+    position: relative;
+    overflow: hidden;
+    margin-top: 24px;
+    padding: 44px;
+    min-height: 290px;
+    display: flex;
+    align-items: flex-end;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, #3a0ca3 0%, #7209b7 45%, #4361ee 100%);
+    box-shadow: 0 24px 60px rgba(114, 9, 183, 0.35);
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -10%;
+    width: 420px;
+    height: 420px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.14), transparent 65%);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 560px;
+}
+
+.hero-tag {
+    display: inline-block;
+    margin-bottom: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.16);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.hero-title {
+    font-size: clamp(1.9rem, 4vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    margin-bottom: 12px;
+}
+
+.hero p {
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 22px;
+}
+
+.hero-disc {
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11rem;
+    color: rgba(255, 255, 255, 0.1);
+    animation: spin 18s linear infinite;
+}
+
+/* ---------- Profile ---------- */
+.profile-banner {
+    position: relative;
+    overflow: hidden;
+    margin-top: 24px;
+    padding: 36px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, #1a0a3e 0%, #2a0a5e 45%, #0d0d2b 100%);
+    box-shadow: var(--shadow);
+}
+
+.profile-banner::before {
+    content: '';
+    position: absolute;
+    top: -60px;
+    right: -60px;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(124, 77, 255, 0.45), transparent 70%);
+}
+
+.profile-user {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
+
+.profile-avatar {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    border: 3px solid var(--border-strong);
+    object-fit: cover;
+}
+
+.eyebrow {
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-faint);
+}
+
+.profile-user h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+}
+
+.profile-email {
+    color: var(--text-dim);
+    font-size: 0.88rem;
+}
+
+.profile-stats {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 26px;
+}
+
+.stat {
+    min-width: 96px;
+    padding: 12px 20px;
+    text-align: center;
+    border-radius: var(--radius);
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid var(--border);
+}
+
+.stat strong {
+    display: block;
+    font-size: 1.5rem;
+}
+
+.stat span {
+    font-size: 0.72rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-faint);
+}
+
+/* ---------- Footer ---------- */
+.app-footer {
+    margin-top: 70px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 0.88rem;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 26px;
+    margin-top: 14px;
+}
+
+.footer-links a {
+    font-size: 1.35rem;
+    transition: var(--transition);
+}
+
+.footer-links a:hover {
+    color: var(--primary-light);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1100px) {
+    :root { --sidebar-width: 84px; }
+
+    .sidebar { padding: 24px 12px; align-items: center; }
+    .sidebar .logo span,
+    .nav-item span,
+    .nav-item .delete-playlist,
+    .sidebar .btn span,
+    .playlist-header span { display: none; }
+    .nav-item { justify-content: center; padding: 13px; }
+    .playlist-header { padding: 0; justify-content: center; }
+    .hero-disc { display: none; }
+}
+
+@media (max-width: 768px) {
+    body {
+        grid-template-columns: 1fr;
+        grid-template-rows: var(--mobile-bar-height) 1fr auto;
+        grid-template-areas:
+            "mobile"
+            "main"
+            "player";
+    }
+
+    .mobile-bar {
+        grid-area: mobile;
+        z-index: 30;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 16px;
+        background: rgba(13, 11, 36, 0.92);
+        border-bottom: 1px solid var(--border);
+        backdrop-filter: blur(16px);
+    }
+
+    .mobile-bar .logo { font-size: 1.2rem; }
+
+    .sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        width: 280px;
+        z-index: 60;
+        align-items: stretch;
+        padding: 28px 18px;
+        transform: translateX(-100%);
+        transition: transform 0.35s var(--ease);
+        background: var(--bg-elevated);
+    }
+
+    .sidebar.open {
+        transform: none;
+        box-shadow: 20px 0 50px rgba(0, 0, 0, 0.6);
+    }
+
+    .sidebar .logo span,
+    .nav-item span,
+    .nav-item .delete-playlist,
+    .sidebar .btn span,
+    .playlist-header span { display: initial; }
+    .nav-item { justify-content: flex-start; }
+    .nav-item .delete-playlist { opacity: 1; }
+    .playlist-header { justify-content: space-between; padding: 0 6px 0 14px; }
+
+    .sidebar-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 55;
+        background: rgba(0, 0, 0, 0.55);
+        opacity: 0;
+        visibility: hidden;
+        transition: var(--transition);
+    }
+
+    body.sidebar-open .sidebar-backdrop {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .main-view { padding: 0 16px 40px; }
+
+    .topbar {
+        position: static;
+        height: auto;
+        margin: 0;
+        padding: 16px 0 0;
+        background: none;
+        backdrop-filter: none;
+    }
+
+    .topbar .search-bar { flex: 1; width: auto; min-width: 0; }
+
+    .hero { padding: 26px; min-height: 0; }
+    .profile-banner { padding: 24px; }
+    .profile-user { flex-direction: column; align-items: flex-start; }
+    .section-header { margin: 30px 0 16px; }
+}
